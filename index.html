@@ -1,0 +1,392 @@
+```html
+<!DOCTYPE html>
+<html lang="fr" class="h-full light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BCB Agenda — Édition Vierge</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        bcb: {
+                            50: '#fff7ed',
+                            500: '#FF5A00', // Orange d'origine du logo BCB
+                            600: '#E04E00',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'SF Pro Text', 'Plus Jakarta Sans', 'sans-serif'],
+                        logo: ['Montserrat', 'Arial Black', 'sans-serif']
+                    },
+                    boxShadow: {
+                        'ios': '0 10px 30px -5px rgba(0, 0, 0, 0.12), 0 4px 12px -2px rgba(0, 0, 0, 0.05)',
+                        'pill': '0 8px 24px -4px rgba(0, 0, 0, 0.12)'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .bcb-logo-text {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            color: #FF5A00;
+            letter-spacing: -0.05em;
+        }
+        /* Scrollbar masquée pour effet natif */
+        ::-webkit-scrollbar {
+            width: 0px;
+            height: 0px;
+        }
+        .event-pill {
+            font-size: 11px;
+            line-height: 1.2;
+            transition: transform 0.15s ease, opacity 0.15s ease;
+        }
+        .event-pill:active {
+            transform: scale(0.96);
+        }
+
+        /* Animations iOS fluides */
+        @keyframes fadeInSlideLeft {
+            from {
+                opacity: 0;
+                transform: translateX(12px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+        }
+        @keyframes fadeInSlideRight {
+            from {
+                opacity: 0;
+                transform: translateX(-12px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+        }
+        @keyframes iosPop {
+            0% {
+                opacity: 0;
+                transform: scale(0.92);
+            }
+            60% {
+                transform: scale(1.02);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        @keyframes slideUpSheet {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0%);
+            }
+        }
+
+        .animate-slide-left {
+            animation: fadeInSlideLeft 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .animate-slide-right {
+            animation: fadeInSlideRight 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .animate-ios-pop {
+            animation: iosPop 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .animate-sheet-up {
+            animation: slideUpSheet 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+    </style>
+</head>
+<body class="h-full bg-slate-100 dark:bg-zinc-950 text-slate-900 dark:text-zinc-100 flex flex-col justify-center items-center p-0 sm:p-4 selection:bg-bcb-500 selection:text-white">
+
+    <!-- CADRE CONTENEUR MOBILE / APP CONTAINER -->
+    <div class="w-full max-w-lg h-full sm:h-[92vh] sm:max-h-[900px] bg-white dark:bg-zinc-900 sm:rounded-[44px] sm:border-[8px] border-slate-200 dark:border-zinc-800 shadow-2xl flex flex-col overflow-hidden relative">
+        
+        <!-- HEADER STYLE APPLE iOS -->
+        <header class="pt-4 px-5 pb-2 shrink-0 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md sticky top-0 z-20 border-b border-slate-100 dark:border-zinc-800">
+            <!-- Dynamic Island / Control Bar -->
+            <div class="flex items-center justify-between mb-3">
+                
+                <!-- Bouton Année Précédente + Logo BCB -->
+                <div class="flex items-center gap-2">
+                    <button onclick="changeMonth(-12)" class="flex items-center text-bcb-500 font-semibold text-sm hover:opacity-70 active:scale-95 transition-all">
+                        <i class="fa-solid fa-chevron-left text-xs mr-1"></i>
+                        <span id="yearLabel">2026</span>
+                    </button>
+                    <span class="bcb-logo-text text-xl ml-2">BCB</span>
+                </div>
+
+                <!-- Actions en haut à droite -->
+                <div class="flex items-center gap-2.5 text-slate-700 dark:text-zinc-200">
+                    <button onclick="openAddModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-zinc-800 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-zinc-700 active:scale-90 transition-all">
+                        <i class="fa-solid fa-plus text-sm text-bcb-500 font-bold"></i>
+                    </button>
+                    <button id="themeToggle" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-zinc-800 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-zinc-700 active:scale-90 transition-all">
+                        <i class="fa-solid fa-moon dark:hidden text-xs"></i>
+                        <i class="fa-solid fa-sun hidden dark:block text-xs text-amber-400"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Titre du Mois -->
+            <div class="flex items-baseline justify-between px-1 mb-2">
+                <h1 id="monthTitle" class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white capitalize transition-all duration-200">
+                    Septembre
+                </h1>
+                <div class="flex items-center gap-1">
+                    <button onclick="changeMonth(-1)" class="w-7 h-7 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-800 dark:hover:text-white active:scale-90 transition-all"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+                    <button onclick="changeMonth(1)" class="w-7 h-7 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-800 dark:hover:text-white active:scale-90 transition-all"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+                </div>
+            </div>
+
+            <!-- En-tête des jours de la semaine (L M M J V S D) -->
+            <div class="grid grid-cols-7 text-center font-bold text-xs text-slate-400 dark:text-zinc-500 py-1">
+                <span>L</span>
+                <span>M</span>
+                <span>M</span>
+                <span>J</span>
+                <span>V</span>
+                <span>S</span>
+                <span>D</span>
+            </div>
+        </header>
+
+        <!-- CALENDRIER GRID (GRILLE MOIS) -->
+        <main id="calendarContainer" class="flex-1 overflow-y-auto px-2 pb-24">
+            <div id="monthGrid" class="grid grid-cols-7 auto-rows-fr gap-y-3 gap-x-1 pt-1">
+                <!-- Généré en JS -->
+            </div>
+        </main>
+
+        <!-- VUE TÂCHES / INBOX -->
+        <main id="tasksContainer" class="flex-1 overflow-y-auto p-5 pb-24 hidden space-y-4">
+            <h2 class="text-xl font-bold">Tâches & Rappels BCB</h2>
+            <form onsubmit="addTask(event)" class="flex gap-2">
+                <input type="text" id="taskInput" placeholder="+ Nouvelle tâche rapide..." class="flex-1 px-4 py-2.5 rounded-2xl bg-slate-100 dark:bg-zinc-800 text-xs focus:outline-none focus:ring-2 focus:ring-bcb-500">
+                <button type="submit" class="px-4 py-2.5 rounded-2xl bg-bcb-500 text-white font-bold text-xs active:scale-95 transition-transform">Ajouter</button>
+            </form>
+            <div id="tasksList" class="space-y-2"></div>
+        </main>
+
+        <!-- BARRE FLOTTANTE DE NAVIGATION (iOS FLOATING BOTTOM PILL) -->
+        <div class="absolute bottom-5 left-0 right-0 px-5 flex items-center justify-between pointer-events-none z-30">
+            
+            <!-- Bouton "Aujourd'hui" Pill -->
+            <button onclick="goToToday()" class="pointer-events-auto px-5 py-2.5 rounded-full bg-white/90 dark:bg-zinc-800/90 backdrop-blur-xl border border-slate-200/80 dark:border-zinc-700/80 text-xs font-bold text-slate-800 dark:text-white shadow-pill hover:scale-105 active:scale-95 transition-all">
+                Aujourd'hui
+            </button>
+
+            <!-- Indicateur Mois Suivant -->
+            <div id="nextMonthIndicator" class="text-xs font-semibold text-slate-400 dark:text-zinc-500 opacity-60 transition-opacity">
+                Octobre
+            </div>
+
+            <!-- Switcher de Vues Pill -->
+            <div class="pointer-events-auto flex items-center p-1 rounded-full bg-white/90 dark:bg-zinc-800/90 backdrop-blur-xl border border-slate-200/80 dark:border-zinc-700/80 shadow-pill">
+                <button onclick="switchTab('calendar')" id="tabBtnCal" class="w-8 h-8 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 flex items-center justify-center text-xs active:scale-90 transition-all">
+                    <i class="fa-solid fa-calendar-grid"></i>
+                </button>
+                <button onclick="switchTab('tasks')" id="tabBtnTask" class="w-8 h-8 rounded-full text-slate-500 dark:text-zinc-400 flex items-center justify-center text-xs active:scale-90 transition-all">
+                    <i class="fa-solid fa-inbox"></i>
+                </button>
+            </div>
+
+        </div>
+
+        <!-- BOTTOM SHEET DÉTAILS DU JOUR (STYLE iOS) -->
+        <div id="daySheet" class="absolute inset-0 bg-black/40 backdrop-blur-xs z-40 hidden flex flex-col justify-end transition-opacity duration-300">
+            <div onclick="closeSheet()" class="flex-1"></div>
+            <div class="bg-white dark:bg-zinc-900 rounded-t-[32px] p-6 max-h-[80vh] flex flex-col shadow-2xl border-t border-slate-200 dark:border-zinc-800 animate-sheet-up">
+                
+                <!-- Poignée tactile -->
+                <div class="w-10 h-1 bg-slate-300 dark:bg-zinc-700 rounded-full mx-auto mb-4 shrink-0"></div>
+                
+                <!-- En-tête de la Sheet -->
+                <div class="flex items-center justify-between mb-4 shrink-0">
+                    <div>
+                        <span id="sheetDayName" class="text-xs font-bold uppercase text-bcb-500 tracking-wider">Mardi</span>
+                        <h3 id="sheetDateTitle" class="text-2xl font-extrabold text-slate-900 dark:text-white">1 Septembre 2026</h3>
+                    </div>
+                    <button onclick="openAddModalForCurrentSheet()" class="w-9 h-9 rounded-full bg-bcb-500 text-white flex items-center justify-center shadow-md hover:scale-105 active:scale-95 transition-all">
+                        <i class="fa-solid fa-plus text-sm"></i>
+                    </button>
+                </div>
+
+                <!-- Liste des événements du jour -->
+                <div id="sheetEventsList" class="flex-1 overflow-y-auto space-y-2.5 pr-1 py-1">
+                    <!-- Les événements s'affichent ici -->
+                </div>
+
+                <button onclick="closeSheet()" class="mt-4 w-full py-3 rounded-2xl bg-slate-100 dark:bg-zinc-800 text-xs font-bold text-slate-700 dark:text-zinc-300 shrink-0 active:scale-98 transition-transform">
+                    Fermer
+                </button>
+            </div>
+        </div>
+
+        <!-- MODAL D'AJOUT D'ÉVÉNEMENT -->
+        <div id="addModal" class="absolute inset-0 bg-black/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+            <div class="bg-white dark:bg-zinc-900 rounded-3xl p-6 w-full max-w-sm border border-slate-200 dark:border-zinc-800 shadow-2xl space-y-4 animate-ios-pop">
+                <div class="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-zinc-800">
+                    <h3 class="text-base font-bold">Nouvel Événement</h3>
+                    <button onclick="closeAddModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+
+                <form onsubmit="saveEvent(event)" class="space-y-3 text-xs">
+                    <div>
+                        <label class="block font-bold text-slate-500 mb-1">Emoji & Titre</label>
+                        <div class="flex gap-2">
+                            <select id="evtEmoji" class="px-2.5 py-2 rounded-xl bg-slate-100 dark:bg-zinc-800 text-base">
+                                <option value="⭐">⭐</option>
+                                <option value="💼">💼</option>
+                                <option value="🌸">🌸</option>
+                                <option value="🧘">🧘</option>
+                                <option value="📚">📚</option>
+                                <option value="🎸">🎸</option>
+                                <option value="🏀">🏀</option>
+                                <option value="✈️">✈️</option>
+                            </select>
+                            <input type="text" id="evtTitle" required placeholder="Ex: Réunion d'équipe..." class="flex-1 px-3 py-2 rounded-xl bg-slate-100 dark:bg-zinc-800 font-medium focus:outline-none focus:ring-2 focus:ring-bcb-500">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block font-bold text-slate-500 mb-1">Date</label>
+                            <input type="date" id="evtDate" required class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-zinc-800 font-medium focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-500 mb-1">Couleur</label>
+                            <select id="evtColor" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-zinc-800 font-medium focus:outline-none">
+                                <option value="orange">Orange BCB</option>
+                                <option value="blue">Bleu Pastel</option>
+                                <option value="red">Rouge Pastel</option>
+                                <option value="green">Vert Pastel</option>
+                                <option value="yellow">Jaune Pastel</option>
+                                <option value="purple">Violet Pastel</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="pt-2 flex justify-end gap-2">
+                        <button type="button" onclick="closeAddModal()" class="px-4 py-2 rounded-xl font-bold text-slate-400 hover:text-slate-600">Annuler</button>
+                        <button type="submit" class="px-5 py-2 rounded-xl bg-bcb-500 text-white font-bold shadow-md active:scale-95 transition-transform">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- LOGIQUE JAVASCRIPT -->
+    <script>
+        // Initialisation de la date sur la date réelle
+        let currentDate = new Date();
+        let activeSheetDate = null;
+        let lastDirection = 'right';
+
+        // Tableaux vierges initialisés via LocalStorage ou vides par défaut
+        let events = JSON.parse(localStorage.getItem('bcb_agenda_clean_events')) || [];
+        let tasks = JSON.parse(localStorage.getItem('bcb_agenda_clean_tasks')) || [];
+
+        const monthNames = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCalendar();
+            renderTasks();
+        });
+
+        // Mode Sombre / Clair
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+        });
+
+        function changeMonth(delta) {
+            lastDirection = delta > 0 ? 'right' : 'left';
+            currentDate.setMonth(currentDate.getMonth() + delta);
+            renderCalendar();
+        }
+
+        function goToToday() {
+            lastDirection = 'right';
+            currentDate = new Date();
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+
+            document.getElementById('yearLabel').innerText = year;
+            document.getElementById('monthTitle').innerText = monthNames[month];
+            
+            const nextMonth = new Date(year, month + 1, 1);
+            document.getElementById('nextMonthIndicator').innerText = monthNames[nextMonth.getMonth()];
+
+            const grid = document.getElementById('monthGrid');
+            
+            // Animation de transition
+            grid.classList.remove('animate-slide-left', 'animate-slide-right');
+            void grid.offsetWidth; // Force le recalcul
+            grid.classList.add(lastDirection === 'right' ? 'animate-slide-left' : 'animate-slide-right');
+
+            grid.innerHTML = '';
+
+            const firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7;
+            const totalDays = new Date(year, month + 1, 0).getDate();
+            const prevMonthDays = new Date(year, month, 0).getDate();
+
+            // Jours du mois précédent
+            for (let i = firstDayIndex - 1; i >= 0; i--) {
+                const cell = createCell(prevMonthDays - i, true);
+                grid.appendChild(cell);
+            }
+
+            // Jours du mois courant
+            const today = new Date();
+            for (let day = 1; day <= totalDays; day++) {
+                const isToday = (day === today.getDate() && month === today.getMonth() && year === today.getFullYear());
+                const cell = createCell(day, false, isToday, year, month);
+                grid.appendChild(cell);
+            }
+
+            // Remplissage fin de grille
+            const totalCells = firstDayIndex + totalDays;
+            const remaining = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+            for (let day = 1; day <= remaining; day++) {
+                const cell = createCell(day, true);
+                grid.appendChild(cell);
+            }
+        }
+
+        function createCell(dayNum, isDisabled, isToday = false, year = null, month = null) {
+            const cell = document.createElement('div');
+            cell.className = `min-h-[92px] p-1 flex flex-col items-center rounded-2xl transition-all ${isDisabled ? 'opacity-20 pointer-events-none' : 'hover:bg-slate-50 dark:hover:bg-zinc-800/40 cursor-pointer active:scale-95'}`;
+
+            // Numéro du jour
+            const numSpan = document.createElement('span');
+            numSpan.className = `text-sm font-extrabold w-7 h-7 flex items-center justify-
